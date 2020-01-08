@@ -19,24 +19,17 @@ jobs:
     - name: Check if already built
       run: '! curl -s --head --fail https://github.com/eregon/ruby-install-builder/releases/download/${{ steps.info.outputs.tag }}/${{ matrix.ruby }}-${{ matrix.os }}.tar.gz'
 
-    - name: Clone ruby-install
-      run: git clone https://github.com/postmodern/ruby-install.git
-    - name: Install ruby-install
-      run: sudo make install
-      working-directory: ./ruby-install
-
-    - name: List versions
-      run: ruby-install
-
     - name: apt-get update on Ubuntu
       run: sudo apt-get update
       if: startsWith(matrix.os, 'ubuntu')
-    - name: Install system ruby for ruby-2.5.2
-      run: sudo apt-get install ruby
-      if: startsWith(matrix.os, 'ubuntu') && matrix.ruby == 'ruby-2.5.2'
 
-    - name: Build Ruby
-      run: ruby-install --no-install-deps ${{ matrix.ruby }} -- --disable-install-doc
+    - run: sudo apt-get install ruby clang llvm
+
+    - run: wget 'https://github.com/rubinius/rubinius/releases/download/v4.12/rubinius-4.12.tar.bz2'
+    - run: tar xf rubinius-4.12.tar.bz2
+    - run: ./build.sh --prefix=~/.rubies/${{ matrix.ruby }}
+      working-directory: rubinius-4.12
+
     - name: Install Bundler if needed
       run: |
         if [ ! -e ~/.rubies/${{ matrix.ruby }}/bin/bundle ]; then
