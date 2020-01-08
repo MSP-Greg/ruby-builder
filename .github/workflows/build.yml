@@ -4,13 +4,11 @@ jobs:
   # Build stable releases
   build:
     if: true
-    env: # https://github.com/jruby/jruby/issues/6023
-      CLASSPATH: ""
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-16.04, ubuntu-18.04, macos-latest ]
-        ruby: [ ruby-2.4.0, ruby-2.4.1, ruby-2.4.2, ruby-2.4.3, ruby-2.4.4, ruby-2.4.5, ruby-2.4.6, ruby-2.4.7, ruby-2.4.8 ]
+        os: [ ubuntu-18.04 ]
+        ruby: [ rbx-4.12 ]
     runs-on: ${{ matrix.os }}
     steps:
     - name: Set tag name
@@ -38,7 +36,7 @@ jobs:
       if: startsWith(matrix.os, 'ubuntu') && matrix.ruby == 'ruby-2.5.2'
 
     - name: Build Ruby
-      run: ruby-install ${{ matrix.ruby }} -- --disable-install-doc
+      run: ruby-install --no-install-deps ${{ matrix.ruby }} -- --disable-install-doc
     - name: Install Bundler if needed
       run: |
         if [ ! -e ~/.rubies/${{ matrix.ruby }}/bin/bundle ]; then
